@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/streamingfast/dtracing"
 	"net/url"
 	"regexp"
 
@@ -28,6 +29,8 @@ func validateAuth(ctx context.Context, path string, authenticator dauth.Authenti
 	if !ok {
 		md = EmptyMetadata
 	}
+
+	md["SF_TRACE_ID"] = []string{dtracing.GetTraceIDOrEmpty(ctx).String()}
 
 	ctx, err := authenticator.Authenticate(ctx, path, url.Values(md), middleware.RealIP(peerFromContext(ctx), md))
 	if err != nil {
